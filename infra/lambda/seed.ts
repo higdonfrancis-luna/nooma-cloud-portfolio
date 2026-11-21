@@ -1,10 +1,11 @@
 import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
-import { Book, Item, Pipeline, ProductArr, bookToItems } from './model';
+import { Book, Item, Pipeline, ProductArr, Products, bookToItems } from './model';
 import bookJson from '../../data/data.json';
 import productArrJson from '../../data/product_arr.json';
 import pipelineJson from '../../data/pipeline.json';
+import productsJson from '../../data/products.json';
 
 const db = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = process.env.TABLE_NAME!;
@@ -43,7 +44,10 @@ export async function handler(event: CloudFormationCustomResourceEvent) {
   const PhysicalResourceId = 'crm-book-seed';
   if (event.RequestType === 'Delete') return { PhysicalResourceId };
 
-  const items = bookToItems(bookJson as unknown as Book, productArrJson as unknown as ProductArr, pipelineJson as unknown as Pipeline);
+  const items = bookToItems(
+    bookJson as unknown as Book, productArrJson as unknown as ProductArr, pipelineJson as unknown as Pipeline,
+    productsJson as Products, process.env.DATA_HASH || 'unknown',
+  );
   const keep = new Set(items.map(i => `${i.PK}\u0000${i.SK}`));
   const stale = (await existingKeys()).filter(k => !keep.has(`${k.PK}\u0000${k.SK}`));
 

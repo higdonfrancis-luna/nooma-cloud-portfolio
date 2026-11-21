@@ -40,6 +40,17 @@ export class SiteStack extends Stack {
       enableAcceptEncodingBrotli: true,
     });
 
+    // Command Center answers: cached per question and button, so the same question is answered once a minute.
+    const askCache = new cloudfront.CachePolicy(this, 'AskCachePolicy', {
+      comment: 'Command Center answers: cache key is the question (q) and the button (id), at most 5 minutes',
+      minTtl: Duration.seconds(0),
+      defaultTtl: Duration.seconds(0),
+      maxTtl: Duration.minutes(5),
+      queryStringBehavior: cloudfront.CacheQueryStringBehavior.allowList('q', 'id'),
+      enableAcceptEncodingGzip: true,
+      enableAcceptEncodingBrotli: true,
+    });
+
     const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
       comment: 'Strategic Partners CRM demo',
       defaultRootObject: 'index.html',
@@ -52,6 +63,15 @@ export class SiteStack extends Stack {
         compress: true,
       },
       additionalBehaviors: {
+        '/api/ask*': {
+          origin: new origins.HttpOrigin(apiDomain, { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY }),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+          cachePolicy: askCache,
+          originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+          responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+          compress: true,
+        },
         '/api/*': {
           origin: new origins.HttpOrigin(apiDomain, { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY }),
           viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
@@ -65,21 +85,19 @@ export class SiteStack extends Stack {
     });
 
     // Upload site/ and clear the CloudFront cache so a deploy shows up right away.
-    new s3deploy.BucketDeployment(this, 'DeploySite', {
+    const deployment = new s3deploy.BucketDeployment(this, 'DeploySite', {
       sources: [s3deploy.Source.asset(path.join(__dirname, '..', '..', 'site'))],
       destinationBucket: bucket,
       distribution,
       distributionPaths: ['/*'],
     });
+    // Clear CloudFront only after the table reload, so no cached answer outlives the old data.
+    deployment.node.addDependency(dataApi.seed);
 
     new CfnOutput(this, 'SiteUrl', {
       value: `https://${distribution.distributionDomainName}`,
       description: 'Public link to the CRM',
     });
 
-    new CfnOutput(this, 'ApiEndpoint', {
-      value: dataApi.api.apiEndpoint,
-      description: 'API Gateway address (the page reaches it through CloudFront at /api/*)',
-    });
   }
 }

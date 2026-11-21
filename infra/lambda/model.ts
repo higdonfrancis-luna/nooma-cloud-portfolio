@@ -7,6 +7,7 @@
  *   DEAL                <0001>#<deal id>         One pipeline deal, in book order
  *   META                LOOKUPS                 Lists the page decodes rows with (states, sellers, ...)
  *   META                PIPELINE                Pipeline totals
+ *   META                VERSION                 Hash of the data and code the table was loaded with
  *
  * Indexes: bySeller (GSI1PK = SELLER#<name>) and byState (GSI2PK = STATE#<name>), both sorted by account name.
  *
@@ -30,6 +31,8 @@ export interface Lookups {
 }
 
 export interface Book { lookups: Lookups; data: Row[] }
+/** The page's product names (index = product_arr index) and e-commerce SKUs, copied from site/index.html. */
+export interface Products { names: string[]; ecommerceSku: Record<string, string> }
 export type ProductArr = Record<string, [number, number][]>;
 export interface Deal { dr: string; account: string; [key: string]: unknown }
 export interface Pipeline { lastUpdated: string | null; totalOpportunities: number; totalARR: number; opportunities: Deal[] }
@@ -51,29 +54,40 @@ export interface AccountSummary {
 
 const pad = (n: number) => String(n).padStart(4, '0');
 
-/** Decode one raw row into the fields the API returns. */
-export function summarize(row: Row, lookups: Lookups, productArr: [number, number][] | undefined): AccountSummary {
+/** A product's name the way the page shows it: index 10 is split by the account's e-commerce SKU. */
+export function productName(idx: number, account: string, products: Products): string {
+  if (idx === 10) {
+    const sku = products.ecommerceSku[account];
+    return sku === 'OnPrem' ? 'E-commerce Lite' : sku === 'Modern' ? 'E-commerce Standard' : 'E-commerce Elite';
+  }
+  return products.names[idx] || `Product ${idx}`;
+}
+
+/** Decode one raw row into the fields the API returns, with the page's own rules for products, TOP and ARR. */
+export function summarize(row: Row, lookups: Lookups, productArr: [number, number][] | undefined, products: Products): AccountSummary {
   const at = (list: string[], i: unknown) => (typeof i === 'number' && list[i]) || '';
-  const products = (productArr || []).map(([idx, arr]) => ({ name: lookups.products[idx] || `Product ${idx}`, arr }));
+  const name = String(row[0]);
+  const items = (productArr || []).map(([idx, arr]) => ({ name: productName(idx, name, products), arr }));
   return {
-    name: String(row[0]),
+    name,
     partners: (Array.isArray(row[1]) ? row[1] : []).map(i => lookups.partners[i]).filter(Boolean),
     state: at(lookups.states, row[2]),
     seller: at(lookups.nams, row[3]),
     manager: at(lookups.flms, row[4]),
     industry: at(lookups.industries, row[5]),
-    isTop: row[6] === 1,
+    isTop: row[6] === 1 || (lookups.topAccounts || []).includes(name),
     city: at(lookups.cities, row[7]),
-    products,
-    arr: products.reduce((sum, p) => sum + p.arr, 0),
+    products: items,
+    arr: Math.round(items.reduce((sum, p) => sum + p.arr, 0)),
   };
 }
 
-/** Book files -> every DynamoDB item the table should hold. */
-export function bookToItems(book: Book, productArr: ProductArr, pipeline: Pipeline): Item[] {
+/** Book files -> every DynamoDB item the table should hold. `version` tags the load (a hash of data and code). */
+export function bookToItems(book: Book, productArr: ProductArr, pipeline: Pipeline, products: Products, version = 'local'): Item[] {
   const items: Item[] = [
     { PK: 'META', SK: 'LOOKUPS', lookups: book.lookups },
     { PK: 'META', SK: 'PIPELINE', lastUpdated: pipeline.lastUpdated, totalOpportunities: pipeline.totalOpportunities, totalARR: pipeline.totalARR },
+    { PK: 'META', SK: 'VERSION', version },
   ];
   const names = new Set<string>();
   book.data.forEach((row, order) => {
@@ -81,7 +95,7 @@ export function bookToItems(book: Book, productArr: ProductArr, pipeline: Pipeli
     if (names.has(name)) throw new Error(`Duplicate account name: ${name}`);
     names.add(name);
     const pa = productArr[name];
-    const s = summarize(row, book.lookups, pa);
+    const s = summarize(row, book.lookups, pa, products);
     const account: Item = {
       PK: 'ACCOUNT', SK: name, order, row, summary: s,
       GSI1PK: `SELLER#${s.seller}`, GSI1SK: name,

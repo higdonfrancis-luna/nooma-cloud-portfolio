@@ -4,7 +4,7 @@
   "private": true,
   "description": "AWS CDK stack for the Strategic Partners CRM demo: private S3 bucket behind CloudFront.",
   "scripts": {
-    "test": "ts-node test/model.test.ts",
+    "test": "ts-node test/model.test.ts && ts-node test/ask.test.ts",
     "synth": "cdk synth",
     "deploy": "cdk deploy --require-approval never"
   },

@@ -38,7 +38,10 @@ jobs:
 
       - run: npm ci
 
-      - name: Check the data model (book -> DynamoDB items -> API answers)
+      - name: Type-check the stack and the Lambda code
+        run: npx tsc -p .
+
+      - name: Check the data model and the Command Center (no AWS needed)
         run: npm test
 
       - name: Deploy the stack

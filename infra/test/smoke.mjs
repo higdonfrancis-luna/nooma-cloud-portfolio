@@ -58,5 +58,25 @@ if (row && L) {
 const missing = await get('/api/accounts/No%20Such%20Account');
 ok('an unknown account returns 404', missing.status === 404, `HTTP ${missing.status}`);
 
+// Phase 3: every account has a partner, product names follow the page, and the Command Center answers.
+ok('every account has at least one partner', book.body?.data?.every(r => Array.isArray(r[1]) && r[1].length >= 1));
+const withBuyingGroups = Object.entries(productArr.body || {}).find(([, list]) => list.some(([i]) => i === 5));
+if (withBuyingGroups) {
+  const acct = await getJson(`/api/accounts/${encodeURIComponent(withBuyingGroups[0])}`);
+  ok('product names follow the page (Buying Groups)', acct.body?.products?.some(p => p.name === 'Buying Groups'), withBuyingGroups[0]);
+}
+const ask = params => getJson(`/api/ask?${new URLSearchParams(params)}`, { retries: 4 });
+const top = await ask({ q: 'Show my top 10 accounts by ARR with their partners and FLMs', id: 'top-accounts' });
+ok('GET /api/ask answers a button by its id', top.body?.kind === 'answer' && top.body?.id === 'top-accounts' && top.body?.blocks?.[0]?.rows?.length === 10, top.body?.title);
+const thin = await ask({ q: 'which big accounts have only one partner' });
+ok('GET /api/ask matches typed words (and the cache keys on the question)', thin.body?.id === 'thin-coverage', thin.body?.id || thin.status);
+if (row) {
+  const rec = await ask({ q: `which partner should I bring into ${row[0]}` });
+  ok('GET /api/ask finds an account name in the question', rec.body?.id === 'recommend-partner' && rec.body?.match?.entities?.account?.[0] === row[0], rec.body?.title);
+}
+const none = await ask({ q: 'what is the weather like' });
+ok('GET /api/ask offers questions when nothing matches', none.body?.kind === 'questions' && none.body?.questions?.length >= 4);
+ok('Command Center answers come through CloudFront', /cloudfront/i.test(top.via), top.via);
+
 console.log(failed ? `\n${failed} check(s) failed` : '\nALL SMOKE CHECKS PASSED');
 process.exit(failed ? 1 : 0);

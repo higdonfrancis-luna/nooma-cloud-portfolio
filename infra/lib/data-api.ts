@@ -13,7 +13,11 @@ import * as cr from 'aws-cdk-lib/custom-resources';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
 const DATA_DIR = path.join(__dirname, '..', '..', 'data');
-const DATA_FILES = ['data.json', 'product_arr.json', 'pipeline.json'];
+/** Everything that decides what the seed writes: a change to any of these reloads the table on deploy. */
+const SEED_INPUTS = [
+  ...['data.json', 'product_arr.json', 'pipeline.json', 'products.json'].map(f => path.join(DATA_DIR, f)),
+  ...['model.ts', 'seed.ts'].map(f => path.join(__dirname, '..', 'lambda', f)),
+];
 
 /** Routes the data function answers. All are GET; CloudFront sends /api/* here. */
 export const ROUTES = [
@@ -24,6 +28,7 @@ export const ROUTES = [
   '/api/partners/{name}/accounts',
   '/api/sellers/{name}/accounts',
   '/api/states/{name}/accounts',
+  '/api/ask',
 ];
 
 /**
@@ -32,6 +37,8 @@ export const ROUTES = [
  */
 export class DataApi extends Construct {
   readonly api: apigw.HttpApi;
+  /** The custom resource that loads the book; anything that must run after a reload depends on it. */
+  readonly seed: CustomResource;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -79,9 +86,13 @@ export class DataApi extends Construct {
       resources: [table.tableArn, `${table.tableArn}/index/*`],
     }));
 
-    // The seed function loads data/ into the table on deploy.
+    // The seed function loads data/ into the table on deploy, tagged with a hash of what it loaded.
+    const hash = crypto.createHash('sha256');
+    for (const f of SEED_INPUTS) hash.update(fs.readFileSync(f));
+    const dataHash = hash.digest('hex');
     const seedFn = new NodejsFunction(this, 'SeedFunction', {
       ...fnDefaults,
+      environment: { ...fnDefaults.environment, DATA_HASH: dataHash },
       entry: path.join(__dirname, '..', 'lambda', 'seed.ts'),
       timeout: Duration.minutes(5),
       logGroup: logGroup('SeedFunction'),
@@ -89,15 +100,13 @@ export class DataApi extends Construct {
     });
     table.grantReadWriteData(seedFn);
 
-    const dataHash = crypto.createHash('sha256');
-    for (const f of DATA_FILES) dataHash.update(fs.readFileSync(path.join(DATA_DIR, f)));
     const provider = new cr.Provider(this, 'SeedProvider', { onEventHandler: seedFn });
-    new CustomResource(this, 'SeedBook', {
+    this.seed = new CustomResource(this, 'SeedBook', {
       serviceToken: provider.serviceToken,
-      properties: { DataHash: dataHash.digest('hex') }, // a new hash re-runs the seed
+      properties: { DataHash: dataHash }, // a new hash re-runs the seed
     });
 
-    // HTTP API with a shared rate limit: about 20 requests a second, bursts up to 40.
+    // HTTP API. The stage limit applies to each route: about 20 requests a second, bursts up to 40.
     this.api = new apigw.HttpApi(this, 'HttpApi', {
       apiName: 'strategic-partners-crm',
       description: 'Strategic Partners CRM data API',

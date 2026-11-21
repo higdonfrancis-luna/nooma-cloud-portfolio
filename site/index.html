@@ -97,22 +97,12 @@ select:focus{outline:none;border-color:#fff}
 .cc-suggestion{background:#e63946;border:none;color:#fff;padding:10px 14px;font-size:11px;border-radius:6px;cursor:pointer;transition:all 0.2s;text-align:left;font-weight:500;display:flex;align-items:center;gap:8px}
 .cc-suggestion:hover{background:#c62828;transform:translateY(-1px);box-shadow:none}
 .cc-suggestion-icon{font-size:14px;display:flex}
-.cc-suggestion.cc-featured{background:linear-gradient(135deg,#e63946,#b71c1c);border:1px solid rgba(255,255,255,0.2);padding:14px 14px;font-size:12px}
-.cc-suggestion.cc-featured:hover{box-shadow:none}
 .command-center-input{display:flex;gap:6px;align-items:flex-end;margin-top:auto;padding-top:8px;border-top:1px solid #222}
 .command-center-input textarea{flex:1;background:#1a1a1a;border:1px solid #444;color:#fff;padding:10px 12px;font-size:12px;border-radius:6px;font-family:inherit;min-height:44px}
 .command-center-input textarea:focus{outline:none;border-color:#CC0000}
 .command-center-input textarea::placeholder{color:#666}
 .command-center-input button{background:#CC0000;border:none;color:#fff;padding:10px 16px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;height:44px;white-space:nowrap}
 .command-center-input button:hover{background:#c62828;box-shadow:none}
-.cc-response{background:#1a1a1a;border-radius:6px;padding:12px;margin-top:10px;flex:1;overflow-y:auto;display:none;min-height:80px}
-.cc-response.active{display:block}
-.cc-response-text{color:#fff;font-size:12px;line-height:1.6}
-.cc-loading{display:flex;align-items:center;gap:8px;color:#888;font-size:12px}
-.cc-loading span{width:6px;height:6px;background:#CC0000;border-radius:50%;animation:ccBounce 1.4s infinite ease-in-out both}
-.cc-loading span:nth-child(1){animation-delay:-0.32s}
-.cc-loading span:nth-child(2){animation-delay:-0.16s}
-@keyframes ccBounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
 
 /* Command Center Expanded Modal */
 .cc-modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:10000;opacity:0;transition:opacity 0.3s ease}
@@ -130,6 +120,25 @@ select:focus{outline:none;border-color:#fff}
 .cc-message.assistant table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.95rem}
 .cc-message.assistant th,.cc-message.assistant td{padding:12px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1)}
 .cc-message.assistant th{color:#CC0000;font-weight:600;background:rgba(0,0,0,0.2)}
+/* Command Center answers from the AWS data API (built with textContent, never innerHTML) */
+.cc-ans-title{color:#CC0000;font-weight:700;font-size:1.1rem;margin-bottom:6px}
+.cc-ans-summary{color:#fff;margin:0}
+.cc-metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0}
+.cc-metric{border:1px solid rgba(255,255,255,0.14);border-radius:8px;padding:10px 12px}
+.cc-metric-value{color:#fff;font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums}
+.cc-metric-label{color:#ddd;font-size:0.8rem}
+.cc-table-title{color:#fff;font-weight:600;margin-top:16px}
+.cc-table-wrap{overflow-x:auto;max-width:100%}
+.cc-message.assistant th.num,.cc-message.assistant td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cc-message.assistant td.nowrap{white-space:nowrap}
+.cc-more{color:#ddd;font-size:0.85rem}
+.cc-note{color:#ddd;font-size:0.9rem;border-left:3px solid #CC0000;padding-left:10px;margin:12px 0}
+.cc-asof{color:#ddd;font-size:0.8rem;margin-top:10px}
+.cc-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.cc-chips-label{width:100%;color:#ddd;font-size:0.85rem}
+.cc-chip{background:transparent;border:1px solid #CC0000;color:#fff;border-radius:16px;padding:6px 12px;font-size:0.85rem;cursor:pointer;font-family:inherit;text-align:left}
+.cc-chip:hover,.cc-chip:focus-visible{background:#CC0000;outline:none}
+.cc-message.cc-answer{width:90%}
 .cc-input-area{padding:20px 28px;border-top:1px solid rgba(255,255,255,0.1);background:rgba(0,0,0,0.3)}
 .cc-quick-actions{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
 .cc-quick-btn{padding:10px 18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:24px;color:#aaa;font-size:0.9rem;cursor:pointer;transition:all 0.2s}
@@ -534,9 +543,6 @@ button.qv-hero.active{background:linear-gradient(135deg,#ff6b5e,#e63946);box-sha
 .cc-message.pb-wide{width:90%}
 .pb-red{color:#e63946}
 .pb-inline{display:inline-flex;align-items:center;gap:6px}
-.pb-progress{text-align:center;padding:22px}
-.pb-phase{display:inline-block;animation:pulse 1.5s infinite;color:#e63946;font-size:14px}
-.pb-caption{display:block;margin-top:8px;font-size:11px}
 .pb-title{display:flex;align-items:center;gap:8px;margin-bottom:8px;color:#e63946;font-size:10px;letter-spacing:2px;text-transform:uppercase}
 .pb-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
 .pb-note{font-size:10px;line-height:1.4}
@@ -720,28 +726,25 @@ button.qv-hero.active{background:linear-gradient(135deg,#ff6b5e,#e63946);box-sha
  <div class="command-center-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg></div>
  <div>
  <div class="command-center-title">COMMAND CENTER</div>
- <div class="command-center-subtitle">POWERED BY NOOMA AI</div>
+ <div class="command-center-subtitle">LIVE ANSWERS FROM AWS</div>
  </div>
  </div>
  <div class="command-center-suggestions">
- <button class="cc-suggestion mk-pursuit" data-q="Generate a Pursuit Brief">
+ <button class="cc-suggestion mk-pursuit" data-qid="pursuit-brief" data-q="Generate a Pursuit Brief">
  <span class="cc-suggestion-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></span> Pursuit Brief <span class="pb-tag">SAMPLE</span>
  </button>
- <button class="cc-suggestion" data-q="Which FLM has the most unpartnered accounts over $100K?">
+ <button class="cc-suggestion" data-qid="manager-gaps" data-q="Which FLM has the most single-partner accounts over $100K?">
  <span class="cc-suggestion-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> FLM partner gaps
  </button>
- <button class="cc-suggestion" data-q="What are the top 10 accounts by ARR without a partner?">
- <span class="cc-suggestion-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span> Top unpartnered
+ <button class="cc-suggestion" data-qid="thin-coverage" data-q="Which big accounts have only one partner?">
+ <span class="cc-suggestion-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span> Thin coverage
  </button>
- <button class="cc-suggestion" data-q="Compare partner coverage across all FLMs">
+ <button class="cc-suggestion" data-qid="manager-coverage" data-q="Compare partner coverage across all FLMs">
  <span class="cc-suggestion-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg></span> Partner coverage
  </button>
- <button class="cc-suggestion" data-q="Summarize my portfolio health and top opportunities">
+ <button class="cc-suggestion" data-qid="portfolio-summary" data-q="Summarize my portfolio health and top opportunities">
  <span class="cc-suggestion-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></span> Portfolio summary
  </button>
- </div>
- <div class="cc-response" id="cc-response">
- <div class="cc-response-text" id="cc-response-text"></div>
  </div>
  <div class="command-center-input">
  <textarea id="cc-input" placeholder="Ask about your accounts..." rows="2" style="resize:vertical;min-height:44px;max-height:120px"></textarea>
@@ -945,27 +948,27 @@ button.qv-hero.active{background:linear-gradient(135deg,#ff6b5e,#e63946);box-sha
 <div class="cc-modal-overlay" id="cc-modal">
  <div class="cc-modal">
  <div class="cc-modal-header">
- <h2> COMMAND CENTER <span>Powered by NOOMA AI</span></h2>
+ <h2> COMMAND CENTER <span>Live answers from AWS</span></h2>
  <button class="cc-modal-close" onclick="closeCommandModal()">×</button>
  </div>
- <div class="cc-chat-container" id="cc-chat-container">
+ <div class="cc-chat-container" id="cc-chat-container" aria-live="polite">
  <div class="cc-message assistant">
- <strong style="color:#CC0000">Welcome to Command Center!</strong><br><br>
- Ask me anything about your 900+ accounts, partners, ARR, or territory. I can analyze data, find opportunities, and create reports.<br><br>
+ <strong style="color:#CC0000">Welcome to Command Center</strong><br><br>
+ Ask about your accounts, partners, sellers, territories and pipeline in your own words. Every answer is worked out from the live data on AWS.<br><br>
  <strong>Try asking:</strong><br>
- • "Which partners have the most coverage by ARR?"<br>
- • "Show me top 10 accounts without partners"<br>
- • "Compare partner coverage across all FLMs"<br>
+ • "Which partners cover Texas?"<br>
+ • "Which big accounts have only one partner?"<br>
+ • "Which partner should I bring into Pepperford Goods?"<br>
  • "Find accounts in California with ARR over $100K"
  </div>
  </div>
  <div class="cc-input-area">
  <div class="cc-quick-actions">
  <button class="cc-quick-btn pb-quick" onclick="startPursuitBrief()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>Pursuit Brief <span class="pb-tag">SAMPLE</span></button>
- <button class="cc-quick-btn" onclick="askModalQuestion('Show my top 10 accounts by ARR with their partners and FLMs')">Top 10 by ARR</button>
- <button class="cc-quick-btn" onclick="askModalQuestion('Which partners have the most coverage? Rank by total ARR')">Partner Rankings</button>
- <button class="cc-quick-btn" onclick="askModalQuestion('Which FLMs have the most unpartnered accounts over $100K?')">FLM Partner Gaps</button>
- <button class="cc-quick-btn" onclick="askModalQuestion('Summarize my portfolio health and opportunities')">Portfolio Summary</button>
+ <button class="cc-quick-btn" onclick="askModalQuestion('Show my top 10 accounts by ARR with their partners and FLMs', 'top-accounts')">Top 10 by ARR</button>
+ <button class="cc-quick-btn" onclick="askModalQuestion('Which partners have the most coverage? Rank by total ARR', 'partner-rankings')">Partner Rankings</button>
+ <button class="cc-quick-btn" onclick="askModalQuestion('Which FLMs have the most single-partner accounts over $100K?', 'manager-gaps')">FLM Partner Gaps</button>
+ <button class="cc-quick-btn" onclick="askModalQuestion('Summarize my portfolio health and opportunities', 'portfolio-summary')">Portfolio Summary</button>
  </div>
  <div id="cc-voice-status" class="cc-voice-status" style="display:none"> Listening...</div>
  <div class="cc-input-row">
@@ -4055,57 +4058,15 @@ updateAccountList = function() {
  
  const input = document.getElementById('cc-input'), sendBtn = document.getElementById('cc-send');
  
- // All US states for dynamic lookup
- const US_STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming','District of Columbia'];
- const STATE_ABBREVS = {'al':'Alabama','ak':'Alaska','az':'Arizona','ar':'Arkansas','ca':'California','co':'Colorado','ct':'Connecticut','de':'Delaware','fl':'Florida','ga':'Georgia','hi':'Hawaii','id':'Idaho','il':'Illinois','in':'Indiana','ia':'Iowa','ks':'Kansas','ky':'Kentucky','la':'Louisiana','me':'Maine','md':'Maryland','ma':'Massachusetts','mi':'Michigan','mn':'Minnesota','ms':'Mississippi','mo':'Missouri','mt':'Montana','ne':'Nebraska','nv':'Nevada','nh':'New Hampshire','nj':'New Jersey','nm':'New Mexico','ny':'New York','nc':'North Carolina','nd':'North Dakota','oh':'Ohio','ok':'Oklahoma','or':'Oregon','pa':'Pennsylvania','ri':'Rhode Island','sc':'South Carolina','sd':'South Dakota','tn':'Tennessee','tx':'Texas','ut':'Utah','vt':'Vermont','va':'Virginia','wa':'Washington','wv':'West Virginia','wi':'Wisconsin','wy':'Wyoming','dc':'District of Columbia'};
- 
- function findStateInQuery(q) {
- q = q.toLowerCase();
- // Check abbreviations first (e.g., "md accounts")
- for (const [abbrev, full] of Object.entries(STATE_ABBREVS)) {
- if (q.includes(' ' + abbrev + ' ') || q.endsWith(' ' + abbrev) || q.startsWith(abbrev + ' ')) return full;
- }
- // Check full state names
- for (const state of US_STATES) {
- if (q.includes(state.toLowerCase())) return state;
- }
- return null;
- }
- 
- function checkStateQuery(q) {
- return findStateInQuery(q) !== null;
- }
- 
- // Common cities for lookup
- const MAJOR_CITIES = ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Jacksonville','Fort Worth','Columbus','Charlotte','San Francisco','Indianapolis','Seattle','Denver','Boston','Nashville','Baltimore','Oklahoma City','Portland','Las Vegas','Milwaukee','Albuquerque','Tucson','Fresno','Sacramento','Atlanta','Miami','Raleigh','Detroit','Minneapolis','Tampa','Cleveland','Pittsburgh','St. Louis','Orlando','Cincinnati','Kansas City'];
- 
- function findCityInQuery(q) {
- q = q.toLowerCase();
- for (const city of MAJOR_CITIES) {
- if (q.includes(city.toLowerCase())) return city;
- }
- // Also check if query contains "accounts in [something]" pattern
- const match = q.match(/accounts?\s+in\s+([a-z\s]+?)(?:\s|$|\?)/);
- if (match && match[1] && !findStateInQuery(match[1])) {
- // Capitalize first letter of each word
- return match[1].split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
- }
- return null;
- }
- 
- function checkCityQuery(q) {
- return findCityInQuery(q) !== null && !checkStateQuery(q);
- }
- 
  document.querySelectorAll('.cc-suggestion').forEach(btn => btn.addEventListener('click', () => {
  const q = btn.dataset.q;
- if (q === 'Generate a Pursuit Brief') {
+ if (btn.dataset.qid === 'pursuit-brief') {
  openCommandModal();
  setTimeout(() => { startPursuitBrief(); }, 150);
  } else {
  // Open modal and immediately send the question
  openCommandModal();
- setTimeout(() => { askModalQuestion(q); }, 150);
+ setTimeout(() => { askModalQuestion(q, btn.dataset.qid); }, 150);
  }
  }));
  sendBtn.addEventListener('click', function() {
@@ -4125,17 +4086,7 @@ updateAccountList = function() {
  setTimeout(() => { askModalQuestion(q); }, 150);
  } 
  });
- 
- function formatTopAccounts(accts, title) {
- let html = title ? `<strong style="color:#CC0000">${title}</strong><br><br>` : '';
- accts.forEach((a, i) => {
- const prods = a.products ? a.products.map(p => p.name).join(', ') : '';
- html += `<strong>${i+1}. ${a.customer}</strong><br>`;
- html += `&nbsp;&nbsp;$${a.arr.toLocaleString()} • ${a.industry || '-'} • ${a.state || '-'}<br>`;
- if (prods) html += `&nbsp;&nbsp;<span style="color:#888">${prods}</span><br>`;
- });
- return html;
- }
+
 })();
 
 // ============================================
@@ -4230,25 +4181,132 @@ updateAccountList = function() {
  }
  };
  
- window.askModalQuestion = function(q) {
+ window.askModalQuestion = function(q, qid) {
  modalInput.value = q;
- sendModalQuestion();
+ sendModalQuestion(qid);
  };
- 
- window.sendModalQuestion = function() {
- const q = modalInput.value.trim();
- if (!q) return;
+
+ // Answers come from the AWS data API (GET /api/ask) as JSON. Everything below builds the reply
+ // with createElement and textContent, so no account or partner name can inject markup.
+ const CC_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+ const ccNumeric = f => ['int', 'usd', 'usdShort', 'pct', 'dec1'].includes(f);
+ function ccFormat(value, format) {
+ if (value === null || value === undefined || value === '') return '';
+ if (format === 'list') return Array.isArray(value) ? value.join(', ') : String(value);
+ if (format === 'int') return Number(value).toLocaleString('en-US');
+ if (format === 'usd') { const n = Math.round(Number(value)); return (n < 0 ? '-' : '') + '$' + Math.abs(n).toLocaleString('en-US'); }
+ if (format === 'usdShort') {
+ const n = Number(value), a = Math.abs(n), sign = n < 0 ? '-' : '';
+ return a >= 1e6 ? sign + '$' + (a / 1e6).toFixed(1) + 'M' : a >= 1e3 ? sign + '$' + Math.round(a / 1e3) + 'K' : sign + '$' + Math.round(a);
+ }
+ if (format === 'pct') return Math.round(Number(value)) + '%';
+ if (format === 'dec1') return Number(value).toFixed(1);
+ if (format === 'date') { const p = String(value).split('-'); return p.length === 3 ? CC_MONTHS[Number(p[1]) - 1] + ' ' + Number(p[2]) + ', ' + p[0] : String(value); }
+ return String(value);
+ }
+ function ccEl(tag, cls, text) {
+ const el = document.createElement(tag);
+ if (cls) el.className = cls;
+ if (text !== undefined) el.textContent = text;
+ return el;
+ }
+ function ccChips(label, chips) {
+ const wrap = ccEl('div', 'cc-chips');
+ if (label) wrap.appendChild(ccEl('div', 'cc-chips-label', label));
+ chips.forEach(c => {
+ const b = ccEl('button', 'cc-chip', c.text);
+ b.type = 'button';
+ b.addEventListener('click', () => askModalQuestion(c.text, c.id));
+ wrap.appendChild(b);
+ });
+ return wrap;
+ }
+ function ccBlock(block) {
+ if (block.type === 'note') return ccEl('div', 'cc-note', block.text);
+ if (block.type === 'metrics') {
+ const grid = ccEl('div', 'cc-metrics');
+ block.items.forEach(m => {
+ const card = ccEl('div', 'cc-metric');
+ card.appendChild(ccEl('div', 'cc-metric-value', ccFormat(m.value, m.format)));
+ card.appendChild(ccEl('div', 'cc-metric-label', m.label));
+ grid.appendChild(card);
+ });
+ return grid;
+ }
+ const frag = document.createDocumentFragment();
+ if (block.title) frag.appendChild(ccEl('div', 'cc-table-title', block.title));
+ const wrap = ccEl('div', 'cc-table-wrap');
+ const table = document.createElement('table');
+ const head = table.createTHead().insertRow();
+ block.columns.forEach(c => head.appendChild(ccEl('th', ccNumeric(c.format) ? 'num' : '', c.label)));
+ const body = table.createTBody();
+ block.rows.forEach(r => {
+ const tr = body.insertRow();
+ block.columns.forEach(c => {
+ const td = tr.insertCell();
+ td.textContent = ccFormat(r[c.key], c.format);
+ if (ccNumeric(c.format)) td.className = 'num';
+ else if (c.format === 'date') td.className = 'nowrap';
+ });
+ });
+ wrap.appendChild(table);
+ frag.appendChild(wrap);
+ if (block.more) frag.appendChild(ccEl('div', 'cc-more', block.more.toLocaleString('en-US') + ' more not shown.'));
+ return frag;
+ }
+ function ccRender(holder, data) {
+ holder.textContent = '';
+ if (data.kind === 'action' && data.action === 'pursuit-brief') {
+ holder.appendChild(ccEl('div', 'cc-ans-summary', data.summary));
+ startPursuitBrief();
+ return;
+ }
+ if (data.kind === 'questions') {
+ holder.appendChild(ccEl('p', 'cc-ans-summary', data.summary));
+ holder.appendChild(ccChips('', data.questions));
+ return;
+ }
+ holder.appendChild(ccEl('div', 'cc-ans-title', data.title));
+ holder.appendChild(ccEl('p', 'cc-ans-summary', data.summary));
+ (data.blocks || []).forEach(b => holder.appendChild(ccBlock(b)));
+ if (data.asOf) holder.appendChild(ccEl('div', 'cc-asof', 'Pipeline snapshot: ' + ccFormat(data.asOf, 'date')));
+ if (data.alternatives && data.alternatives.length) holder.appendChild(ccChips('Did you mean', data.alternatives));
+ if (data.followUps && data.followUps.length) holder.appendChild(ccChips('Ask next', data.followUps.map(t => ({ text: t }))));
+ }
+
+ window.sendModalQuestion = async function(qid) {
+ const q = modalInput.value.replace(/\s+/g, ' ').trim();
+ if (!q && !qid) return;
  modalInput.value = '';
  voiceStatus.style.display = 'none';
- const userMsg = document.createElement('div');
- userMsg.className = 'cc-message user';
- userMsg.textContent = q;
- chatContainer.appendChild(userMsg);
- const reply = document.createElement('div');
- reply.className = 'cc-message assistant';
- reply.innerHTML = '<strong style="color:#CC0000">Command Center is moving to AWS</strong><br><br>Answers to the set questions arrive in the next build step. Meanwhile, try the map, the filters, Partner Intel or the sample Pursuit Brief.';
- chatContainer.appendChild(reply);
+ chatContainer.appendChild(ccEl('div', 'cc-message user', q));
+ const holder = ccEl('div', 'cc-message assistant cc-answer');
+ const loading = ccEl('div', 'cc-modal-loading');
+ const dots = ccEl('div', 'cc-modal-loading-dots');
+ for (let i = 0; i < 3; i++) dots.appendChild(document.createElement('span'));
+ loading.appendChild(dots);
+ loading.appendChild(ccEl('span', '', 'Asking the AWS data API...'));
+ holder.appendChild(loading);
+ chatContainer.appendChild(holder);
  chatContainer.scrollTop = chatContainer.scrollHeight;
+ const params = new URLSearchParams({ q });
+ if (qid) params.set('id', qid);
+ const ctrl = new AbortController();
+ const timer = setTimeout(() => ctrl.abort(), 15000);
+ try {
+ const resp = await fetch('/api/ask?' + params.toString(), { signal: ctrl.signal });
+ const data = await resp.json().catch(() => null);
+ if (!resp.ok || !data) throw new Error((data && data.error) || 'HTTP ' + resp.status);
+ ccRender(holder, data);
+ } catch (err) {
+ holder.textContent = '';
+ holder.appendChild(ccEl('div', 'cc-ans-title', 'The answer did not arrive'));
+ holder.appendChild(ccEl('p', 'cc-ans-summary', err.name === 'AbortError' ? 'The AWS data API took too long to answer.' : 'The AWS data API could not answer: ' + err.message + '.'));
+ holder.appendChild(ccChips('', [{ text: q || 'Try again', id: qid }]));
+ } finally {
+ clearTimeout(timer);
+ }
+ holder.scrollIntoView({ block: 'start' });
  };
 
  // Handle Enter key in modal input
@@ -4749,7 +4807,7 @@ const GUIDE_SLIDES = [
  },
  {
  title: 'Command Center',
- desc: 'Ask your data anything in plain English. Command Center answers questions about accounts, partners, revenue and territory in seconds, from coverage gaps to your biggest unpartnered accounts.',
+ desc: 'Ask about accounts, partners, sellers, territories and pipeline in your own words. Every answer is worked out fresh from the live data API on AWS: biggest accounts, accounts that rely on one partner, which partner to bring in next.',
  run: () => openCommandModal(),
  close: () => closeCommandModal(),
  art: guideArt(`

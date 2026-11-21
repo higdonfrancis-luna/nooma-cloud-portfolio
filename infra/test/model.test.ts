@@ -3,14 +3,25 @@
  * loaded before the API existed. Runs locally with no AWS account: `npm test`.
  */
 import * as assert from 'assert';
-import { Book, Item, Pipeline, ProductArr, bookToItems, itemsToBook, itemsToPipeline, itemsToProductArr, summaries } from '../lambda/model';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Book, Item, Pipeline, ProductArr, Products, bookToItems, itemsToBook, itemsToPipeline, itemsToProductArr, summaries } from '../lambda/model';
 import bookJson from '../../data/data.json';
 import productArrJson from '../../data/product_arr.json';
 import pipelineJson from '../../data/pipeline.json';
+import productsJson from '../../data/products.json';
 
 const book = bookJson as unknown as Book;
 const productArr = productArrJson as unknown as ProductArr;
 const pipeline = pipelineJson as unknown as Pipeline;
+const products = productsJson as Products;
+const html = fs.readFileSync(path.join(__dirname, '..', '..', 'site', 'index.html'), 'utf8');
+/** Read a `const NAME = <JSON>;` line from the page. */
+function pageJson<T>(name: string): T {
+  const m = html.match(new RegExp(`const ${name} = (.*);\\s*$`, 'm'));
+  if (!m) throw new Error(`${name} not found in site/index.html`);
+  return JSON.parse(m[1]) as T;
+}
 
 let passed = 0;
 function check(label: string, fn: () => void) {
@@ -20,7 +31,7 @@ function check(label: string, fn: () => void) {
 }
 
 // Simulate DynamoDB: items come back shuffled, grouped by key or index.
-const items = bookToItems(book, productArr, pipeline);
+const items = bookToItems(book, productArr, pipeline, products, 'test');
 const shuffle = (a: Item[]) => [...a].sort(() => Math.random() - 0.5);
 const pk = (k: string) => shuffle(items.filter(i => i.PK === k));
 const get = (PK: string, SK: string) => items.find(i => i.PK === PK && i.SK === SK)!;
@@ -69,6 +80,49 @@ check('seller and state indexes cover every account', () => {
   const bySeller = new Map<string, number>();
   accts.forEach(a => bySeller.set(a.GSI1PK as string, (bySeller.get(a.GSI1PK as string) || 0) + 1));
   assert.strictEqual([...bySeller.values()].reduce((a, b) => a + b, 0), 907);
+});
+
+check('data/products.json matches the page (PRODUCT_NAMES, ECOMMERCE_SKU)', () => {
+  assert.deepStrictEqual(products.names, pageJson<string[]>('PRODUCT_NAMES'));
+  assert.deepStrictEqual(products.ecommerceSku, pageJson<Record<string, string>>('ECOMMERCE_SKU'));
+});
+
+check('API product names follow the page decode for every account', () => {
+  const sku = pageJson<Record<string, string>>('ECOMMERCE_SKU');
+  const names = pageJson<string[]>('PRODUCT_NAMES');
+  for (const a of pk('ACCOUNT')) {
+    const expected = ((a.productArr as [number, number][]) || []).map(([idx]) =>
+      idx === 10 ? (sku[a.SK] === 'OnPrem' ? 'E-commerce Lite' : sku[a.SK] === 'Modern' ? 'E-commerce Standard' : 'E-commerce Elite') : names[idx]);
+    assert.deepStrictEqual((a.summary as { products: { name: string }[] }).products.map(p => p.name), expected, a.SK);
+  }
+});
+
+check('every account has at least one partner, no repeats, valid partner indexes', () => {
+  for (const row of book.data) {
+    const idx = row[1] as number[];
+    assert.ok(idx.length >= 1, `${row[0]} has no partner`);
+    assert.strictEqual(new Set(idx).size, idx.length, `${row[0]} lists a partner twice`);
+    for (const i of idx) assert.ok(Number.isInteger(i) && i >= 0 && i < book.lookups.partners.length, `${row[0]} has a bad partner index ${i}`);
+  }
+});
+
+check('attached partners all come from the Partner Finder roster, none over 80 accounts', () => {
+  const roster = new Set(pageJson<{ partner: string }[]>('PARTNER_ROSTER').map(r => r.partner));
+  const load = new Map<string, number>();
+  for (const row of book.data) for (const i of row[1] as number[]) {
+    const p = book.lookups.partners[i];
+    assert.ok(roster.has(p), `${p} is not on the roster`);
+    load.set(p, (load.get(p) || 0) + 1);
+  }
+  assert.ok(Math.max(...load.values()) <= 80);
+});
+
+check('TOP flags follow the page rule (row flag or topAccounts list)', () => {
+  const top = new Set(book.lookups.topAccounts);
+  for (const a of pk('ACCOUNT')) {
+    const row = a.row as unknown[];
+    assert.strictEqual((a.summary as { isTop: boolean }).isTop, row[6] === 1 || top.has(a.SK), a.SK);
+  }
 });
 
 check('summaries come back biggest ARR first', () => {
