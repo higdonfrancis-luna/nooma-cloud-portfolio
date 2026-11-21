@@ -6,6 +6,8 @@ Backend projects by NOOMA Engineering (nooma.engineering), built across AWS, Azu
 
 Same product, two clouds. The Strategic Partners CRM is a partner and account intelligence dashboard that first ran on Netlify and a Cloudflare Worker. This is its AWS version.
 
+**Live on AWS:** https://d31rhwm7z6md5r.cloudfront.net
+
 The book is fictional: 907 accounts, 74 partners, 38 sellers under 6 managers, and 281 pipeline deals. Every email address is `@example.com`.
 
 ### How it runs
