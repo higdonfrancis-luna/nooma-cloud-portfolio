@@ -1006,16 +1006,16 @@ const ECOMMERCE_SKU = {"Quimby & Calloway Partners":"Unknown","Holthaven Utiliti
 let PRODUCT_ARR = {};
 
 // Load product ARR data FIRST, then data.json
-fetch('product_arr.json')
+fetch('/api/product-arr')
  .then(r => r.json())
  .then(d => {
  PRODUCT_ARR = d;
  console.log('Loaded PRODUCT_ARR with', Object.keys(d).length, 'accounts');
  })
- .catch(e => console.log('Note: product_arr.json not found, products will show without ARR'))
+ .catch(e => console.log('Note: product ARR did not load from the API, products will show without ARR'))
  .finally(() => {
  // Now load data.json after PRODUCT_ARR is ready
- fetch('data.json')
+ fetch('/api/book')
  .then(r => r.json())
  .then(jsonData => {
  DATA = jsonData;
@@ -1696,7 +1696,7 @@ Thank you`;
 
  
  // Now load pipeline data
- return fetch('pipeline.json').then(r => r.json()).catch(() => ({ opportunities: [], lastUpdated: null }));
+ return fetch('/api/pipeline').then(r => r.json()).catch(() => ({ opportunities: [], lastUpdated: null }));
  })
  .then(pipelineJson => {
  PIPELINE_DATA = pipelineJson || { opportunities: [], lastUpdated: null };

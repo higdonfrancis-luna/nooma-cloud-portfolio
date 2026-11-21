@@ -1,14 +1,16 @@
 import * as path from 'path';
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
+import { CfnOutput, Duration, Fn, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import { DataApi } from './data-api';
 
 /**
  * The front end: a private S3 bucket that only CloudFront can read (Origin Access Control),
- * served over HTTPS on a free *.cloudfront.net address.
+ * served over HTTPS on a free *.cloudfront.net address. CloudFront also sends /api/* to the
+ * data API (API Gateway + Lambda + DynamoDB), so the page and its API share one address.
  */
 export class SiteStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -24,6 +26,20 @@ export class SiteStack extends Stack {
       autoDeleteObjects: true,
     });
 
+    const dataApi = new DataApi(this, 'DataApi');
+    // API Gateway's own address, e.g. abc123.execute-api.us-east-2.amazonaws.com
+    const apiDomain = Fn.select(2, Fn.split('/', dataApi.api.apiEndpoint));
+
+    // Honor the API's Cache-Control (60 seconds), never longer than 5 minutes.
+    const apiCache = new cloudfront.CachePolicy(this, 'ApiCachePolicy', {
+      comment: 'CRM data API: follow the origin Cache-Control, at most 5 minutes',
+      minTtl: Duration.seconds(0),
+      defaultTtl: Duration.seconds(0),
+      maxTtl: Duration.minutes(5),
+      enableAcceptEncodingGzip: true,
+      enableAcceptEncodingBrotli: true,
+    });
+
     const distribution = new cloudfront.Distribution(this, 'SiteDistribution', {
       comment: 'Strategic Partners CRM demo',
       defaultRootObject: 'index.html',
@@ -34,6 +50,17 @@ export class SiteStack extends Stack {
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
         compress: true,
+      },
+      additionalBehaviors: {
+        '/api/*': {
+          origin: new origins.HttpOrigin(apiDomain, { protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY }),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
+          cachePolicy: apiCache,
+          originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+          responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+          compress: true,
+        },
       },
     });
 
@@ -48,6 +75,11 @@ export class SiteStack extends Stack {
     new CfnOutput(this, 'SiteUrl', {
       value: `https://${distribution.distributionDomainName}`,
       description: 'Public link to the CRM',
+    });
+
+    new CfnOutput(this, 'ApiEndpoint', {
+      value: dataApi.api.apiEndpoint,
+      description: 'API Gateway address (the page reaches it through CloudFront at /api/*)',
     });
   }
 }

@@ -38,11 +38,14 @@ jobs:
 
       - run: npm ci
 
+      - name: Check the data model (book -> DynamoDB items -> API answers)
+        run: npm test
+
       - name: Deploy the stack
         run: npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
 
-      - name: Show the site link
+      - name: Check the live site and API
         run: |
           URL=$(node -e "console.log(require('./cdk-outputs.json').StrategicPartnersCrmSite.SiteUrl)")
-          echo "Live at $URL"
+          node test/smoke.mjs "$URL"
           echo "### Live at $URL" >> "$GITHUB_STEP_SUMMARY"
