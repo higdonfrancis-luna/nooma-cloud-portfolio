@@ -1,0 +1,203 @@
+{
+ "brief": {
+  "company": "Wrenhollow Systems",
+  "descriptor": "B2B software and services company, Illinois",
+  "slide1": {
+   "financialPulse": [
+    "Mid-market software firms are being pushed to show efficient growth, so marketing spend now has to prove pipeline, not just volume.",
+    "Customer acquisition costs are rising in crowded categories, which puts more weight on expansion revenue from the installed base.",
+    "Boards at this size expect a clear line from content and campaigns to closed revenue, often before approving new hires."
+   ],
+   "strategicPriorities": [
+    "Turn the website into a stronger pipeline source with account-aware journeys for target buying teams.",
+    "Connect marketing, sales and product usage signals so expansion opportunities surface earlier.",
+    "Scale content production without adding headcount, while keeping brand and messaging consistent."
+   ],
+   "platformPosition": [
+    "Runs Buying Groups as its largest investment, with CMS, DAM and AB Testing around it: a solid web and B2B marketing core.",
+    "That footprint makes account-based journeys and data-driven personalization the natural next step.",
+    "Main whitespace: no Data, CDP, Analytics or ESP B2B, so buying-group signals stop at the marketing automation layer.",
+    "Partner coverage: Best Strategy is attached and can lead data and journey work."
+   ]
+  },
+  "slide2": {
+   "executives": [
+    {
+     "role": "Chief Marketing Officer",
+     "name": "Dana Whitlock",
+     "agenda": "Pipeline sourced by marketing, cost per opportunity, and win rates on target accounts.",
+     "platformAngle": "ESP B2B and CDP turn buying-group activity into coordinated journeys sales can act on.",
+     "openingHook": "Your buying-group scores stop at the inbox. What if every touchpoint used them?",
+     "proofPoint": "B2B teams that orchestrate journeys by buying group typically see faster stage progression on target accounts."
+    },
+    {
+     "role": "Chief Revenue Officer",
+     "name": "Marcus Ellery",
+     "agenda": "Net revenue retention, expansion bookings and forecast accuracy across new and existing customers.",
+     "platformAngle": "Data and Analytics join product usage with marketing and sales activity to flag expansion early.",
+     "openingHook": "Which accounts are ready to expand this quarter, and how early can your team see it?",
+     "proofPoint": "Revenue teams with a unified account view usually catch expansion and churn signals a quarter sooner."
+    },
+    {
+     "role": "Chief Information Officer",
+     "name": "Priya Kalvani",
+     "agenda": "Fewer point tools, clean data governance and lower integration effort across the go-to-market stack.",
+     "platformAngle": "Data gives one governed customer foundation that CDP, Analytics and ESP B2B all share.",
+     "openingHook": "How many systems hold a different version of the same customer today?",
+     "proofPoint": "Consolidating customer data onto one governed foundation commonly cuts integration work and reporting disputes."
+    },
+    {
+     "role": "VP of Digital Experience",
+     "name": "Rafael Ostrander",
+     "agenda": "Website conversion, content velocity and the time it takes to launch a campaign page.",
+     "platformAngle": "Digital Optimizer and Content Measure scale on-brand variations on the CMS and DAM they already run.",
+     "openingHook": "Your team already owns the CMS and DAM. How long does one personalized page take today?",
+     "proofPoint": "Teams that generate on-brand variations from an existing DAM usually ship personalized pages in days instead of weeks."
+    }
+   ]
+  },
+  "slide3": {
+   "partnerPlay": "Run this with Best Strategy. Best Strategy leads the data and journey work: standing up Data and CDP, connecting the Buying Groups instance to the CMS, and building the first account-based journeys in ESP B2B. They also run the analytics workshop that defines which buying-group signals sales sees. The platform team covers licensing, roadmap sessions and executive alignment, while Best Strategy owns delivery and the quarterly optimization cadence after launch."
+  },
+  "leadPartner": "Best Strategy",
+  "priorityPlay": {
+   "product": "ESP B2B",
+   "motion": "Pilot then expand",
+   "partnerPosture": "Co-sell",
+   "partner": "Best Strategy",
+   "theirProblem": "Buying-group scores live in marketing automation, but nothing coordinates the journey across email, web and sales outreach for the whole buying team.",
+   "whyThisProduct": "ESP B2B orchestrates journeys at the account and buying-group level, using the Buying Groups data they already maintain.",
+   "fitSignals": [
+    "You already score buying groups. ESP B2B makes those scores drive the next message for every member.",
+    "Start with one product line and one segment, then expand once sales sees the lift."
+   ],
+   "firstMove": "Book a working session with marketing operations to map one target segment's buying group and its current touchpoints.",
+   "watchOut": "Sales has to agree on the buying-group roles first, or the journeys will target the wrong people."
+  },
+  "sellNow": [
+   {
+    "product": "Analytics",
+    "type": "Cross-sell",
+    "easiest": true,
+    "theirProblem": "Web, campaign and product signals sit in separate reports, so nobody sees the full path to a deal.",
+    "firstMove": "Offer a two-week analytics assessment on the top three conversion paths.",
+    "whyWinnable": "Low lift to start, and it makes the CMS and AB Testing investments easier to prove."
+   },
+   {
+    "product": "Content Measure",
+    "type": "Upsell",
+    "easiest": false,
+    "theirProblem": "The content team cannot tell which assets in the DAM actually move pipeline.",
+    "firstMove": "Show content performance on their top 20 DAM assets in a one-hour demo.",
+    "whyWinnable": "Extends the DAM they already run and answers a question the CMO is already asking."
+   },
+   {
+    "product": "Registration APP",
+    "type": "Cross-sell",
+    "easiest": false,
+    "theirProblem": "Event and trial sign-ups use generic forms that do not feed buying-group data back cleanly.",
+    "firstMove": "Rebuild one high-traffic sign-up form as a pilot and connect it to Buying Groups.",
+    "whyWinnable": "Small, fast win that improves data quality for every other play."
+   }
+  ],
+  "millionPlays": [
+   {
+    "name": "Account-based revenue engine",
+    "owner": "Chief Marketing Officer",
+    "total": 1125000,
+    "clearsMillion": true,
+    "theirProblem": "Marketing generates leads, but target accounts do not progress because the buying team is not engaged as a group.",
+    "products": [
+     {
+      "product": "ESP B2B",
+      "why": "Orchestrates journeys for the whole buying group."
+     },
+     {
+      "product": "CDP",
+      "why": "Builds account audiences from every signal in real time."
+     },
+     {
+      "product": "Data",
+      "why": "Unifies account, contact and engagement data."
+     },
+     {
+      "product": "Analytics",
+      "why": "Shows which journeys move accounts through stages."
+     }
+    ],
+    "partnerScope": "Best Strategy implements Data and CDP, builds the first ten journeys, and runs quarterly optimization.",
+    "whatHasToBeTrue": [
+     "Sales and marketing agree on buying-group roles and stage definitions.",
+     "Marketing operations can dedicate an owner to journey design."
+    ],
+    "firstMeeting": "Meet the CMO with marketing operations to map one target segment's buying group and agree on stage definitions."
+   },
+   {
+    "name": "Expansion and retention signals",
+    "owner": "Chief Revenue Officer",
+    "total": 1110000,
+    "clearsMillion": true,
+    "theirProblem": "Expansion and churn risk show up too late because product usage, support and marketing data never meet.",
+    "products": [
+     {
+      "product": "Data",
+      "why": "Brings product usage and account data together."
+     },
+     {
+      "product": "Analytics",
+      "why": "Surfaces expansion and risk patterns by account."
+     },
+     {
+      "product": "CDP",
+      "why": "Triggers plays when signals change."
+     },
+     {
+      "product": "ESP",
+      "why": "Runs adoption and renewal journeys for end users."
+     }
+    ],
+    "partnerScope": "Best Strategy connects product usage data and builds the expansion and risk dashboards.",
+    "whatHasToBeTrue": [
+     "Product usage data can be shared with marketing systems.",
+     "The revenue team commits to acting on account alerts each week."
+    ],
+    "firstMeeting": "Meet the CRO and the head of customer success to agree on three expansion signals worth acting on."
+   },
+   {
+    "name": "Personalized web at scale",
+    "owner": "VP of Digital Experience",
+    "total": 870000,
+    "clearsMillion": false,
+    "theirProblem": "The website treats every visitor the same, and producing personalized pages takes weeks of design and build time.",
+    "products": [
+     {
+      "product": "Digital Optimizer",
+      "why": "Generates on-brand page and asset variations from the DAM."
+     },
+     {
+      "product": "CDP",
+      "why": "Decides which variation each account sees."
+     },
+     {
+      "product": "Content Measure",
+      "why": "Shows which variations drive pipeline."
+     },
+     {
+      "product": "Analytics",
+      "why": "Measures conversion by segment."
+     }
+    ],
+    "partnerScope": "Best Strategy builds the personalization framework on the existing CMS and trains the content team.",
+    "whatHasToBeTrue": [
+     "Brand guidelines are documented well enough to drive variations.",
+     "The web team can run tests on the highest-traffic pages each sprint."
+    ],
+    "firstMeeting": "Meet the VP of Digital Experience and the content lead to pick the three pages where personalization would matter most."
+   }
+  ],
+  "pricing": {
+   "servicesMultiple": 1.2
+  }
+ },
+ "sourceCount": 0
+}

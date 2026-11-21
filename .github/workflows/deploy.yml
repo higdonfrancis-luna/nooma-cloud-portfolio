@@ -1,0 +1,48 @@
+name: Deploy to AWS
+
+# Deploys only from main. The AWS role trusts this repository's main branch and nothing else,
+# and it signs in with a short-lived OIDC token, so no AWS keys are stored in GitHub.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: infra/package-lock.json
+
+      - name: Sign in to AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - run: npm ci
+
+      - name: Deploy the stack
+        run: npx cdk deploy --require-approval never --outputs-file cdk-outputs.json
+
+      - name: Show the site link
+        run: |
+          URL=$(node -e "console.log(require('./cdk-outputs.json').StrategicPartnersCrmSite.SiteUrl)")
+          echo "Live at $URL"
+          echo "### Live at $URL" >> "$GITHUB_STEP_SUMMARY"
