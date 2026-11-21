@@ -290,9 +290,12 @@ export const INTENTS: Intent[] = [
         const sel = list.filter(x => x.seller === a.seller && x.name !== a.name).length;
         const st = list.filter(x => x.state === a.state && x.name !== a.name).length;
         const prod = mainProduct ? list.filter(x => x.name !== a.name && x.products.some(q => q.name === mainProduct)).length : 0;
-        const why = [ind && `${ind} ${a.industry} accounts`, sel && `${sel} of ${personName(a.seller)}'s accounts`, st && `${st} in ${a.state}`,
+        const why = [ind && plural(ind, `${a.industry} account`), sel && `${sel} of ${personName(a.seller)}'s accounts`, st && `${st} in ${a.state}`,
           prod && `${prod} that own ${mainProduct}`].filter(Boolean).join(', ');
-        return { partner: p, score: 2 * ind + 1.5 * sel + st + prod / Math.max(1, list.length) * 10, why, accounts: list.length };
+        // Each signal counts with diminishing returns, so a big partner can't win on size alone:
+        // the same industry and the same main product say the most, then the same seller, then the same state.
+        const score = 3 * Math.log1p(ind) + 3 * Math.log1p(prod) + 2.5 * Math.log1p(sel) + 1.5 * Math.log1p(st);
+        return { partner: p, score, why, accounts: list.length };
       }).sort((x, y) => y.score - x.score || x.partner.localeCompare(y.partner)).slice(0, 5);
       return {
         title: `Partners to bring into ${a.name}`,
@@ -300,7 +303,7 @@ export const INTENTS: Intent[] = [
         blocks: [
           { type: 'table', columns: [C.rank, { key: 'partner', label: 'Partner' }, { key: 'why', label: 'Already covers' }, { key: 'accounts', label: 'Accounts', format: 'int' }],
             rows: rows.map((r, i) => ({ rank: i + 1, partner: r.partner, why: r.why || 'Accounts elsewhere in the book', accounts: r.accounts })) },
-          { type: 'note', text: 'Ranked by where each partner already works in this book: the same industry, the same seller, the same state and the same main product. A starting point for the conversation, not a score from the partner.' },
+          { type: 'note', text: 'Ranked by where each partner already works in this book: the same industry and main product count most, then the same seller, then the same state, each with diminishing returns so size alone does not win. A starting point for the conversation, not a score from the partner.' },
         ],
         followUps: [...(rows[0] ? [`Which accounts does ${rows[0].partner} cover?`] : []), `Tell me about ${a.name}`],
       };
