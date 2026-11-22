@@ -91,6 +91,7 @@ All 907 accounts share one partition, which is fine at this size. A book in the 
 | `infra/lambda/` | `data-api.ts` (the API), `seed.ts` (loads the book), `model.ts` (the table layout, shared by both) |
 | `infra/lambda/ask/` | The Command Center engine: `entities.ts`, `text.ts`, `intents.ts` (the question catalog), `index.ts` (the scorer) |
 | `infra/test/` | `model.test.ts` and `ask.test.ts` (run before deploy), `smoke.mjs` (checks the live site after deploy) |
+| `video-src/` | Code that builds the two explainer videos (slides, OpenAI text-to-speech narration, ffmpeg); see its README |
 | `.github/workflows/deploy.yml` | Deploys the stack on every push to `main` |
 
 ### How a deploy works
