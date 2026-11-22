@@ -90,6 +90,8 @@ export class SiteStack extends Stack {
       destinationBucket: bucket,
       distribution,
       distributionPaths: ['/*'],
+      // Two explainer videos (about 35 MB) are uploaded with the site; give the upload function room.
+      memoryLimit: 512,
     });
     // Clear CloudFront only after the table reload, so no cached answer outlives the old data.
     deployment.node.addDependency(dataApi.seed);

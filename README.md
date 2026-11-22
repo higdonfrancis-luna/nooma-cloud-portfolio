@@ -84,7 +84,7 @@ All 907 accounts share one partition, which is fine at this size. A book in the 
 
 | Path | What it is |
 |---|---|
-| `site/` | The CRM page and one sample Pursuit Brief (`sample-brief.json`) |
+| `site/` | The CRM page, one sample Pursuit Brief (`sample-brief.json`), and two explainer videos with their watch pages: `video.html` (this AWS build) and `lunaphone-video.html` (LunaPhone, an AI phone agent built on Azure), files in `site/video/` |
 | `data/` | The fictional book (`data.json`, `product_arr.json`, `pipeline.json`) and `products.json`, loaded into DynamoDB on deploy |
 | `scripts/` | `assign-partners.mjs` (partners on every account) and `sync-products.mjs` (product names from the page) |
 | `infra/lib/` | The CDK stack: bucket, CloudFront, and the data API construct |

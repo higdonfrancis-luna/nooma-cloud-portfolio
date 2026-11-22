@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A phone agent on Azure | NOOMA Engineering</title>
+<meta name="description" content="How LunaPhone, an AI phone agent, was built with Twilio, Python on Azure App Service and the Azure OpenAI Realtime API.">
+<style>
+  :root { --bg: #000; --fg: #fff; --accent: #7C3AED; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; }
+  main { max-width: 1100px; margin: 0 auto; padding: 48px 20px 64px; }
+  .eyebrow { color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; }
+  h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; margin: 10px 0 12px; }
+  p { max-width: 70ch; margin: 0 0 16px; }
+  video { width: 100%; height: auto; display: block; border: 1px solid var(--accent); border-radius: 10px; margin: 24px 0; background: #000; }
+  a { color: var(--fg); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ul { padding-left: 20px; margin: 0 0 16px; }
+  li { margin: 4px 0; }
+  .links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+  .btn { border: 1px solid var(--accent); border-radius: 24px; padding: 8px 18px; text-decoration: none; }
+  .btn:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">NOOMA Engineering · Cloud portfolio</div>
+  <h1>A phone agent on Azure</h1>
+  <p>A 9-minute walkthrough of how LunaPhone, an AI phone agent, was built: Twilio on the phone line, a Python service on Azure App Service, and the Azure OpenAI Realtime API, plus the real problems worked through along the way.</p>
+  <video controls preload="metadata" poster="video/lunaphone-poster.jpg" src="video/lunaphone-azure.mp4">
+    Your browser can't play this video. <a href="video/lunaphone-azure.mp4">Download it</a>.
+  </video>
+  <p>Covered in the video:</p>
+  <ul>
+    <li>Twilio webhooks, TwiML and Media Streams over a WebSocket</li>
+    <li>Azure App Service on Linux: Python 3.11, Oryx builds and Gunicorn</li>
+    <li>Flask and Flask-Sock bridging two WebSockets per call</li>
+    <li>The Azure OpenAI Realtime API: one model that hears, reasons and speaks</li>
+    <li>Real lessons: Azure authentication, phone audio formats, startup and pickup speed</li>
+  </ul>
+  <div class="links">
+    <a class="btn" href="https://lunaphone.ai">Visit LunaPhone</a>
+    <a class="btn" href="https://nooma.engineering">NOOMA Engineering</a>
+  </div>
+</main>
+</body>
+</html>
